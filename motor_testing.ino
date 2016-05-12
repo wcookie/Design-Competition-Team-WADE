@@ -1,22 +1,27 @@
+  #include<Servo.h> //including the servo library
+  
+  Servo laser_servo; //initializing the servo for the laser
+  //////////////////////////////////////
+  //these 4 pins relate to the h bridges for the drive motors
   int analogLeft = 5; //PWM out
   int digitalLeft = 4; // Digital out
   int analogRight = 3; //PWM out
   int digitalRight = 2; //Digital out
-  int laserOneOut = 7; //Digital out
-  int prOneIn = A1 ; //Analog in
-  int prOneValue = 0; //analog value of the first photoresistor
-  unsigned long newtime;
-  bool flagged = true;
-  unsigned long oldtime;
-  unsigned long temptime;
+  //////////////////////////////////////
+  int servo_pin = 6; //PWM out
+  int prOneIn = A1 ; //Analog in for the first phototransistor
+  int prOneValue = 0; //analog value of the first phototransistor
+  int servo_pos = 0; // the servo position for the lasers
 void setup() {
   // put your setup code here, to run once:
+  //initializing pin modes
   pinMode(analogLeft, OUTPUT);
   pinMode(digitalLeft, OUTPUT);
   pinMode(analogRight, OUTPUT);
   pinMode(digitalRight, OUTPUT);
-  pinMode(laserOneOut, OUTPUT);
+
   pinMode(prOneIn, INPUT);
+  laser_servo.attach(servo_pin); //attaching the servo
   Serial.begin(9600); //allowing serial communication 
 }
 
@@ -36,4 +41,13 @@ void loop() {
   digitalWrite(digitalRight, LOW);
   prOneValue = analogRead(prOneIn); //reading the value of the first photoresistor
   Serial.println(prOneValue);
+
+  //moving the servo
+  servo_pos = 10;
+  laser_servo.write(servo_pos); //telling the servo to move to 100 degrees
+  delay(200000);
+  
+
+
+  
 }

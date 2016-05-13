@@ -13,8 +13,8 @@
   int servo_pin = 6; //PWM out
   //////////////////////////////////////
   //Pins for edge detection
-  int frontLeftLine = A2; //Analog in
-  int frontRightLine = A3; //Analog in
+  int frontLeftLine = A3; //Analog in
+  int frontRightLine = A2; //Analog in
   int backLine = A1; //Analog in
   //////////////////////////////////////
   //laser values
@@ -59,34 +59,38 @@ void setup() {
 void loop() {
 
   //can take out timing stuff probably; we will be using 555 circuit
-
-  if (analogRead(frontLeftLine)-edgeBase>15){
+ // Serial.println(analogRead(frontRightLine));
+    Serial.println(edgeDetected);
+  /*if (analogRead(frontLeftLine)<50){
     edgeSide=1;
     edgeDetected=true;
+    Serial.println("frontLEFT");
   }
-  else if (analogRead(frontRightLine)-edgeBase>15){
+ */ if (analogRead(frontRightLine)<50){
     edgeSide=2;
     edgeDetected=true;
+    Serial.println("frontRIGHT");
   }
-  else if (analogRead(backLine)-edgeBase>15){
+    if (analogRead(backLine)<50){
     edgeSide=0;
     edgeDetected=true;
+    Serial.println("back");
   }
   //left is the upper h bridge
   //left HIGH is for forward
   if (edgeDetected == false){
-    analogWrite(analogLeft, 128); //128 out of 255 (0-255 bc 8 bits 2 to the 8 eecs213 lol)
+    analogWrite(analogLeft, 50); //128 out of 255 (0-255 bc 8 bits 2 to the 8 eecs213 lol)
     digitalWrite(digitalLeft, HIGH);
     //right is the lower h bridge
     //right LOW is for forward
-    analogWrite(analogRight, 128);
+    analogWrite(analogRight, 50);
     digitalWrite(digitalRight, HIGH);
   }
   else{
-    analogWrite(analogRight, 128);
-    analogWrite(analogLeft, 128);
-    digitalWrite(digitalRight, LOW);
-    digitalWrite(digitalLeft, LOW);
+    analogWrite(analogRight, 50);
+    analogWrite(analogLeft, 50);
+    digitalWrite(digitalRight, HIGH);
+    digitalWrite(digitalLeft, HIGH);
   }
   //moving the servo
   servo_pos ++;

@@ -1,11 +1,13 @@
-  #include<Servo.h> //including the servo library
+  //include<Servo.h> //including the servo library
   //////////////////////////////////////
-  Servo laser_servo; //initializing the servo for the laser
+ // Servo laser_servo; //initializing the servo for the laser
   //////////////////////////////////////
+  //test stuff here
+  int testPin = 11;
   //these 4 pins relate to the h bridges for the drive motors
-  int analogLeft = 5; //PWM out
+  int analogLeft = 9; //PWM out
   int digitalLeft = 4; // Digital out
-  int analogRight = 9; //PWM out (recently switched due to defection with arduino 3 pin
+  int analogRight = 3; //PWM out (recently switched due to defection with arduino 3 pin
   int digitalRight = 2; //Digital out
   //////////////////////////////////////
   //servo stuff
@@ -40,6 +42,7 @@
 void setup() {
   // put your setup code here, to run once:
   //initializing pin modes
+  pinMode(testPin, OUTPUT);
   pinMode(analogLeft, OUTPUT);
   pinMode(digitalLeft, OUTPUT);
   pinMode(analogRight, OUTPUT);
@@ -57,7 +60,7 @@ void setup() {
 }
 
 void loop() {
-
+  analogWrite(testPin, 50);
   //can take out timing stuff probably; we will be using 555 circuit
     Serial.println(analogRead(backLine));
    // Serial.println(edgeDetected);
@@ -79,22 +82,22 @@ void loop() {
   //left is the upper h bridge
   //left HIGH is for forward
   if (edgeDetected == false){
-    analogWrite(analogLeft, 50); //128 out of 255 (0-255 bc 8 bits 2 to the 8 eecs213 lol)
+    analogWrite(analogLeft, 255); //128 out of 255 (0-255 bc 8 bits 2 to the 8 eecs213 lol)
     digitalWrite(digitalLeft, HIGH);
     //right is the lower h bridge
     //right LOW is for forward
-    analogWrite(analogRight, 50);
+    analogWrite(analogRight, 255);
     digitalWrite(digitalRight, HIGH);
   }
   else{
     analogWrite(analogRight, 50);
     analogWrite(analogLeft, 50);
-    digitalWrite(digitalRight, HIGH);
-    digitalWrite(digitalLeft, HIGH);
+    digitalWrite(digitalRight, LOW);
+    digitalWrite(digitalLeft, LOW);
   }
   //moving the servo
   servo_pos ++;
-  laser_servo.write(servo_pos); //telling the servo to move to 100 degrees
+ // laser_servo.write(servo_pos); //telling the servo to move to 100 degrees
   delay(10);
  
 }

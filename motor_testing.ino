@@ -8,6 +8,7 @@
   #define EDGE_THRESHOLD 100
   #define STANDARD_SPEED 150
   #define SLOW_SPEED 75
+  #define LASER_THRESHOLD 5
   int testPin = 11;
   //////////////////////////////////////
   
@@ -45,7 +46,7 @@
 
   //////////////////////////////////////
   //logic values
-  short detectionSide = 1; //detectionSide can be either 0, 1, or 2.  
+  short detectionSide = -1; //detectionSide can be either 0, 1, or 2.  -1 if we haven't seen it
   //If it is 0, then we have last seen the cup on the left.  
   //if it is 1 we have last seen it in the middle
   //If it is 2 then we have last seen it on the right
@@ -96,10 +97,6 @@ void setup() {
 
 void loop() {
   //check if we are near the edge
-  Serial.println("back base");
-  Serial.println(backBase);
-  Serial.println("back curr");
-  Serial.println(analogRead(backLine));
   
   nearTheEdge();
   //if we are avoid it
@@ -110,7 +107,7 @@ void loop() {
   //moving the servo
   servo_pos ++;
  // laser_servo.write(servo_pos); //telling the servo to move to 100 degrees
-  setMotors(STANDARD_SPEED, 1, STANDARD_SPEED, 1);
+  setMotors(STANDARD_SPEED-25, 1, STANDARD_SPEED-25, 1);
   delay(10);
  
 }
@@ -189,19 +186,26 @@ void avoidEdge(){
   }
   //if edge is to the right 
   else if (edgeSide==2){
+    setMotors(0, -1, 0,-1);
+    delay(100);
     //set the right one to faster than the left one slightly
-    int leftVal= STANDARD_SPEED-25;
-    setMotors(leftVal, 1, STANDARD_SPEED, 1);
-    //wait 1 second
-    delay(1000);
+    setMotors(STANDARD_SPEED, -1, STANDARD_SPEED, -1);
+    //wait 550 milli second
+    delay(550);
+    //now we turn using the right wheel as our pivot
+    setMotors(SLOW_SPEED+25, -1, STANDARD_SPEED-25, 1);
+    delay(500);
   }
   //if edge is to the left
   else if (edgeSide==1){
     //vice versa of above
-    int rightVal=STANDARD_SPEED-25;
-    setMotors(STANDARD_SPEED, 1, rightVal, 1);
-    //wait 1 second
-    delay(1000);
+    setMotors(0,-1,0,-1);
+    delay(100);
+    setMotors(STANDARD_SPEED, -1, STANDARD_SPEED, -1);
+    //wait 550 mili second
+    delay(550);
+    setMotors(STANDARD_SPEED-25, 1, SLOW_SPEED+25, -1);
+    delay(500);
   }
   //it really shouldn't get to the back but whatever i'll take care of it
   else if (edgeSide==0){
@@ -213,5 +217,30 @@ void avoidEdge(){
   else{
     Serial.println("Why did we call this function.... there is no edge");
   }
+}
+//detectCup() at the end of the day looks for cup  
+void detectCup(){
+     //acquire laser values
+     leftLaserValue = analogRead(leftLaserPin);
+     rightLaserValue = analogRead(rightLaserPin);
+     if((leftLaserValue > LASER_THRESHOLD) && (rightLaserValue > LASER_THRESHOLD)){
+        //this case means that we are locked on
+        isDetected=true;
+        detectionSide=1;
+     }
+     //its only on the left
+     else if(leftLaserValue > LASER_THRESHOLD){
+        isDetected=true;
+        detectionSide=0;
+     }
+     //its only on the right
+     else if(rightLaserValue > LASER_THRESHOLD){
+        isDetected=true;
+        detectionSide=2;
+     }
+     //we didnt find it
+     else{
+        isDetected=false;
+     }
 }
 

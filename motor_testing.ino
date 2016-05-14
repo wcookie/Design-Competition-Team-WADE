@@ -5,7 +5,7 @@
 
   //////////////////////////////////////
   //some constants here
-  #define EDGE_THRESHOLD 75
+  #define EDGE_THRESHOLD 100
   #define STANDARD_SPEED 150
   #define SLOW_SPEED 75
   int testPin = 11;
@@ -56,7 +56,10 @@
   //If it is 2, then it is on the right
   //If it is 3, then it is on both front ones
   bool edgeDetected =0; //edgeDetected purely is whether or not we think we're on an edge.
-  int edgeBase =0; //edgeBase is our base threshold for the line detection we find in setup
+  int frontLeftBase =0; //frontLeftBase is our base threshold for the line detection we find in setup left
+  //same for right and back
+  int frontRightBase =0;
+  int backBase =0;
   ///////////////////////////////////////
 void setup() {
   // put your setup code here, to run once:
@@ -71,20 +74,33 @@ void setup() {
   pinMode(backLine, INPUT);
   pinMode(leftLaserPin, INPUT);
   pinMode(rightLaserPin, INPUT);
-  delay(400);
-  edgeBase = (analogRead(frontLeftLine)+analogRead(frontRightLine)+analogRead(backLine))/3;
-  delay(500);
-  edgeBase = (edgeBase+((analogRead(frontLeftLine)+analogRead(frontRightLine)+analogRead(backLine))/3))/2;
+  delay(1000);
+  frontLeftBase=analogRead(frontLeftLine);
+  delay(200);
+  frontLeftBase=(frontLeftBase+analogRead(frontLeftLine))/2;
+  delay(200);
+  frontRightBase = analogRead(frontRightLine);
+  delay(200);
+  frontRightBase = (frontRightBase+analogRead(frontRightLine))/2;
+  delay(200);
+  backBase = analogRead(backLine);
+  delay(200);
+  backBase = (backBase+analogRead(backLine))/2;
   //basically creating the edgeBase as the initialitization of the first two values
   //laser_servo.attach(servo_pin); //attaching the servo
   Serial.begin(9600); //allowing serial communication 
   //Now we wait for 4 seconds
-  delay(4000);
+  delay(3000);
   //AND We are gonna go go go go go
 }
 
 void loop() {
   //check if we are near the edge
+  Serial.println("back base");
+  Serial.println(backBase);
+  Serial.println("back curr");
+  Serial.println(analogRead(backLine));
+  
   nearTheEdge();
   //if we are avoid it
   if (edgeDetected){
@@ -94,6 +110,7 @@ void loop() {
   //moving the servo
   servo_pos ++;
  // laser_servo.write(servo_pos); //telling the servo to move to 100 degrees
+  setMotors(STANDARD_SPEED, 1, STANDARD_SPEED, 1);
   delay(10);
  
 }
@@ -124,27 +141,27 @@ void setMotors(int leftSpeed, int leftDirection, int rightSpeed, int rightDirect
 void nearTheEdge(){
   bool not_detected=true;
 
-  if ((analogRead(frontLeftLine)-edgeBase>EDGE_THRESHOLD)&&(analogRead(frontRightLine)-edgeBase>EDGE_THRESHOLD)){
+  if ((frontLeftBase-analogRead(frontLeftLine)>EDGE_THRESHOLD)&&(frontRightBase-analogRead(frontRightLine)>EDGE_THRESHOLD)){
     edgeSide=3;
     edgeDetected=true;
     Serial.println("IN THE FRONT");
   }
   //if the front left sees black set edgeSide to 1
-  else if (analogRead(frontLeftLine)-edgeBase>EDGE_THRESHOLD){
+  else if (frontLeftBase-analogRead(frontLeftLine)>EDGE_THRESHOLD){
     edgeSide=1;
     edgeDetected=true;
     Serial.println("frontLEFT");
     not_detected=false;
   }
   //if the front right sees black set edgeSide to 2
-  else  if (analogRead(frontRightLine)-edgeBase>EDGE_THRESHOLD){
+  else  if (frontRightBase-analogRead(frontRightLine)>EDGE_THRESHOLD){
     edgeSide=2;
     edgeDetected=true;
     Serial.println("frontRIGHT");
     not_detected=false;
   }
   //if the front right seees black set edgeSide to 0
-    if (analogRead(backLine)-edgeBase>EDGE_THRESHOLD){
+    if (-backBase-analogRead(backLine)>EDGE_THRESHOLD){
     edgeSide=0;
     edgeDetected=true;
     Serial.println("back");

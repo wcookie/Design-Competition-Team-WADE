@@ -71,35 +71,26 @@ void setup() {
   pinMode(backLine, INPUT);
   pinMode(leftLaserPin, INPUT);
   pinMode(rightLaserPin, INPUT);
-  delay(5);
+  delay(400);
   edgeBase = (analogRead(frontLeftLine)+analogRead(frontRightLine)+analogRead(backLine))/3;
-
+  delay(500);
+  edgeBase = (edgeBase+((analogRead(frontLeftLine)+analogRead(frontRightLine)+analogRead(backLine))/3))/2;
+  //basically creating the edgeBase as the initialitization of the first two values
   //laser_servo.attach(servo_pin); //attaching the servo
   Serial.begin(9600); //allowing serial communication 
+  //Now we wait for 4 seconds
+  delay(4000);
+  //AND We are gonna go go go go go
 }
 
 void loop() {
   //check if we are near the edge
   nearTheEdge();
- /*
-  if (edgeDetected == false){
-    analogWrite(analogLeft, 175); //128 out of 255 (0-255 bc 8 bits 2 to the 8 eecs213 lol)
-    digitalWrite(digitalLeft, HIGH);
-    //right is the lower h bridge
-    //right LOW is for forward
-    analogWrite(analogRight, 175);
-    digitalWrite(digitalRight, HIGH);
-  }
-  else{
-    analogWrite(analogRight, 50);
-    analogWrite(analogLeft, 50);
-    digitalWrite(digitalRight, LOW);
-    digitalWrite(digitalLeft, LOW);
-  }
-  */
+  //if we are avoid it
   if (edgeDetected){
-    
+    avoidEdge();
   }
+  
   //moving the servo
   servo_pos ++;
  // laser_servo.write(servo_pos); //telling the servo to move to 100 degrees

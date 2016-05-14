@@ -5,10 +5,10 @@
 
   //////////////////////////////////////
   //some constants here
-  #define EDGE_THRESHOLD 85
-  #define STANDARD_SPEED 110
-  #define SLOW_SPEED 65
-  #define FAST_SPEED 125
+  #define EDGE_THRESHOLD 100
+  #define STANDARD_SPEED 87
+  #define SLOW_SPEED 52
+  #define FAST_SPEED 130
   #define LASER_THRESHOLD 25
   int testPin = 0;
   //////////////////////////////////////
@@ -87,32 +87,24 @@ void setup() {
   pinMode(backLine, INPUT);
   pinMode(leftLaserPin, INPUT);
   pinMode(rightLaserPin, INPUT);
-  delay(1000);
+
   frontLeftBase=analogRead(frontLeftLine);
-  delay(200);
+  delay(100);
   frontLeftBase=(frontLeftBase+analogRead(frontLeftLine))/2;
-  delay(200);
   frontRightBase = analogRead(frontRightLine);
-  delay(200);
+  delay(100);
   frontRightBase = (frontRightBase+analogRead(frontRightLine))/2;
-  delay(200);
   backBase = analogRead(backLine);
-  delay(200);
+  delay(100);
   backBase = (backBase+analogRead(backLine))/2;
-  delay(200);
    
-  for (int i=0; i<25; i++){
-    leftLaserBase+=analogRead(leftLaserPin);
-    rightLaserBase+=analogRead(rightLaserPin);
-    delay(40);
-  }
+
   leftLaserBase/=25;
   rightLaserBase/=25;
   //basically creating the edgeBase as the initialitization of the first two values
   laser_servo.attach(servo_pin); //attaching the servo
   Serial.begin(9600); //allowing serial communication 
-  //Now we wait for 4 seconds
-  delay(2000);
+  //Now we wait for 4 seconds  JK ITS OUT
   setMotors(STANDARD_SPEED, 1, STANDARD_SPEED,1);
   oldTime=millis();
   //AND We are gonna go go go go go
@@ -121,7 +113,7 @@ void setup() {
 void loop() {
   laser_servo.write(random(0,180));
   Serial.println(A1);
-  delay(500);
+  //delay(500);
   nearTheEdge();
   //if we are avoid it
  if (edgeDetected){

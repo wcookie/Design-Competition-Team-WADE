@@ -6,8 +6,9 @@
   //////////////////////////////////////
   //some constants here
   #define EDGE_THRESHOLD 100
-  #define STANDARD_SPEED 150
+  #define STANDARD_SPEED 125
   #define SLOW_SPEED 75
+  #define FAST_SPEED 150
   #define LASER_THRESHOLD 5
   int testPin = 11;
   //////////////////////////////////////
@@ -97,17 +98,22 @@ void setup() {
 
 void loop() {
   //check if we are near the edge
-  
+  detectCup();
   nearTheEdge();
   //if we are avoid it
   if (edgeDetected){
     avoidEdge();
   }
-  
+  //if we detect the cup
+  if (isDetected){
+    //ATTACK CUP
+    attackCup();
+  }
   //moving the servo
   servo_pos ++;
  // laser_servo.write(servo_pos); //telling the servo to move to 100 degrees
-  setMotors(STANDARD_SPEED-25, 1, STANDARD_SPEED-25, 1);
+ // setMotors(STANDARD_SPEED, 1, STANDARD_SPEED, 1);
+ //we want to search for the cup here
   delay(10);
  
 }
@@ -189,11 +195,11 @@ void avoidEdge(){
     setMotors(0, -1, 0,-1);
     delay(100);
     //set the right one to faster than the left one slightly
-    setMotors(STANDARD_SPEED, -1, STANDARD_SPEED, -1);
+    setMotors(STANDARD_SPEED+25, -1, STANDARD_SPEED+25, -1);
     //wait 550 milli second
     delay(550);
     //now we turn using the right wheel as our pivot
-    setMotors(SLOW_SPEED+25, -1, STANDARD_SPEED-25, 1);
+    setMotors(SLOW_SPEED+25, -1, STANDARD_SPEED, 1);
     delay(500);
   }
   //if edge is to the left
@@ -201,10 +207,10 @@ void avoidEdge(){
     //vice versa of above
     setMotors(0,-1,0,-1);
     delay(100);
-    setMotors(STANDARD_SPEED, -1, STANDARD_SPEED, -1);
+    setMotors(STANDARD_SPEED+25, -1, STANDARD_SPEED+25, -1);
     //wait 550 mili second
     delay(550);
-    setMotors(STANDARD_SPEED-25, 1, SLOW_SPEED+25, -1);
+    setMotors(STANDARD_SPEED, 1, SLOW_SPEED+25, -1);
     delay(500);
   }
   //it really shouldn't get to the back but whatever i'll take care of it
@@ -243,4 +249,23 @@ void detectCup(){
         isDetected=false;
      }
 }
+//attackCup determines where to go if we are hitting the cup
+void attackCup(){
+  //if we are in the middle locked on
+  if(detectionSide==1){
+    //if we are in the motors simply go faster and ATTACK
+    setMotors(FAST_SPEED, 1, FAST_SPEED, 1);
+  }
+  //if we are on the left only but we still detect it
+  //lets go at slightly off standard speed slightly left (motor on right is faster)
+  else if(detectionSide==0){
+    setMotors(STANDARD_SPEED-10, 1, STANDARD_SPEED+10, 1);
+  }
+  //we are looking on the right
+  else{
+   setMotors(STANDARD_SPEED+10, 1, STANDARD_SPEED-10, 1);
+  }
+  
+}
+//searchForCup
 

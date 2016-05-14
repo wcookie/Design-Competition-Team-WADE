@@ -5,18 +5,18 @@
 
   //////////////////////////////////////
   //some constants here
-  #define EDGE_THRESHOLD 100
-  #define STANDARD_SPEED 125
-  #define SLOW_SPEED 75
-  #define FAST_SPEED 150
+  #define EDGE_THRESHOLD 85
+  #define STANDARD_SPEED 110
+  #define SLOW_SPEED 65
+  #define FAST_SPEED 125
   #define LASER_THRESHOLD 25
-  int testPin = 11;
+  int testPin = 0;
   //////////////////////////////////////
   
   //////////////////////////////////////
   //these 4 pins relate to the h bridges for the drive motors
   //left is the upper H bridge
-  int analogLeft = 9; //PWM out
+  int analogLeft = 11; //PWM out
   int digitalLeft = 4; // Digital out
   int analogRight = 3; //PWM out (recently switched due to defection with arduino 3 pin
   int digitalRight = 2; //Digital out
@@ -119,42 +119,27 @@ void setup() {
 }
 
 void loop() {
-  laser_servo.write(90);
-  //delay(10000);
-  //check if we are near the edge
-  //Serial.println("LEFT");
-  //Serial.println(analogRead(leftLaserPin));
-  Serial.println("A5");
-  Serial.println(analogRead(A5));
-  Serial.println("A4");
-  Serial.println(analogRead(A4));
-  delay(10);
-  //Serial.println("RIGHT");
- // Serial.println(analogRead(rightLaserPin));
-  //delay(50);
-  detectCup();
+  laser_servo.write(random(0,180));
+  Serial.println(A1);
+  delay(500);
   nearTheEdge();
   //if we are avoid it
-  if (edgeDetected){
-    avoidEdge();
+ if (edgeDetected){
+   avoidEdge();
   }
   //if we detect the cup
-  if (isDetected){
-    //ATTACK CUP
-   // Serial.println("ATTACK");
-   // attackCup();
-  }
+
+// 
   else{
-    Serial.println(analogRead(leftLaserPin));
-    setMotors(0,1,0,1);
+    searchForCup();
   }
   //moving the servo
-  servo_pos ++;
+ // servo_pos ++;
   //laser_servo.write(90); //telling the servo to move to 100 degrees
  // setMotors(STANDARD_SPEED, 1, STANDARD_SPEED, 1);
  //we want to search for the cup here
- // delay(10);
- searchForCup();
+  delay(10);
+
 }
 //setMotors() sets the motors to the corresponding values and directions.
 //leftSpeed, leftDirection, rightSpeed, rightDirection is pretty self explanatory
@@ -186,6 +171,7 @@ void nearTheEdge(){
   if ((frontLeftBase-analogRead(frontLeftLine)>EDGE_THRESHOLD)&&(frontRightBase-analogRead(frontRightLine)>EDGE_THRESHOLD)){
     edgeSide=3;
     edgeDetected=true;
+    not_detected=false;
     Serial.println("IN THE FRONT");
   }
   //if the front left sees black set edgeSide to 1
@@ -203,7 +189,7 @@ void nearTheEdge(){
     not_detected=false;
   }
   //if the front right seees black set edgeSide to 0
-    if (-backBase-analogRead(backLine)>EDGE_THRESHOLD){
+    if (backBase-analogRead(backLine)>(EDGE_THRESHOLD)){
     edgeSide=0;
     edgeDetected=true;
     Serial.println("back");
@@ -221,6 +207,8 @@ void avoidEdge(){
   if (edgeSide==3){
     //TODO: ADD turnAround() function
     //for now this is gonna just back up with both motors for like 1 second then one motor
+    setMotors(0,-1,0,-1);
+    delay(100);
     setMotors(SLOW_SPEED, -1, SLOW_SPEED, -1);
     //delay a second
     delay(1000);
@@ -268,7 +256,7 @@ void detectCup(){
      //acquire laser values
      leftLaserValue = analogRead(leftLaserPin);
      rightLaserValue = analogRead(rightLaserPin);
-     if((leftLaserValue-leftLaserBase > LASER_THRESHOLD) && (rightLaserValue-rightLaserBase > LASER_THRESHOLD)){
+    /* if((leftLaserValue-leftLaserBase > LASER_THRESHOLD) && (rightLaserValue-rightLaserBase > LASER_THRESHOLD)){
         //this case means that we are locked on
         isDetected=true;
         detectionSide=1;
@@ -287,12 +275,17 @@ void detectCup(){
      else{
         isDetected=false;
      }
+     */
+     if (leftLaserValue || rightLaserValue){
+      isDetected=true;
+      detectionSide=1;
+     }
 }
 //attackCup() determines where to go if we are hitting the cup
 void attackCup(){
   //if we are in the middle locked on
   if(detectionSide==1){
-    //if we are in the motors simply go faster and ATTACK
+    //if we are in the middle simply go faster and ATTACK
     setMotors(FAST_SPEED, 1, FAST_SPEED, 1);
   }
   //if we are on the left only but we still detect it
@@ -309,17 +302,20 @@ void attackCup(){
 //searchForCup() determines where to go when we dont see the cup
 void searchForCup(){
   bool turn=false;
+  detectionSide=random(0,4);
   if(timeToTurn){
-    if ((millis()-oldTime)>500)
+    if ((millis()-oldTime)>1000)
     {
       turn=true;
       timeToTurn=false;
+      oldTime=millis();
     }
   }
   else{
-    if((millis()-oldTime)>2000){
+    if((millis()-oldTime)>3000){
      setMotors(STANDARD_SPEED,1,STANDARD_SPEED,1);
      timeToTurn=true;
+     oldTime=millis();
     }
   }
   if (turn){
@@ -327,23 +323,26 @@ void searchForCup(){
     //if we have last scene in the middle, have it balanced out randomly
     //We will turn for 500 milliseconds, then turn on for 2 seconds
     if(detectionSide==1){
-      leftRandom=random(0,27); //random number between 0 and 26
-      rightRandom=random(0,27); //same thing
-      setMotors(STANDARD_SPEED-13+leftRandom, 1, STANDARD_SPEED-13+rightRandom, 1);  
+      leftRandom=random(0,45); //random number between 0 and 26
+      rightRandom=random(0,45); //same thing
+      setMotors(STANDARD_SPEED-23+leftRandom, 1, STANDARD_SPEED-23+rightRandom, 1);  
     } 
     //if it was last scene on the left lets skew this value to the left mildly heavily
     else if (detectionSide==0){
-      leftRandom=random(0,27); //same random numbers
-      rightRandom=random(0,27);
-      //however here instead of having the same offset, the left is going to skew on average 13 higher than the right
-      setMotors(STANDARD_SPEED+leftRandom, 1, STANDARD_SPEED-13+rightRandom, 1);
+      leftRandom=random(0,45); //same random numbers
+      rightRandom=random(0,45);
+      //however here insteadw of having the same offset, the left is going to skew on average 13 higher than the right
+      setMotors(STANDARD_SPEED+23+leftRandom, 1, STANDARD_SPEED+rightRandom, 1);
     }
     //same thing on the right 
+    else if (detectionSide==2){
+      setMotors(STANDARD_SPEED, -1, STANDARD_SPEED, -1);
+    }
     else{
-      leftRandom = random(0,27);
-      rightRandom=random(0,27); //at this point i should have just made one set of this...
+      leftRandom = random(0,30);
+      rightRandom=random(0,30); //at this point i should have just made one set of this...
       //same as above but with swithced left/right
-      setMotors(STANDARD_SPEED-13+leftRandom, 1, STANDARD_SPEED+rightRandom, 1);
+      setMotors(STANDARD_SPEED+leftRandom, 1, STANDARD_SPEED+15+rightRandom, 1);
     }
   }
   //if we aren't turning then we just go straight

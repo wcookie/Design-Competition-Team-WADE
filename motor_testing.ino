@@ -9,7 +9,7 @@
   #define STANDARD_SPEED 125
   #define SLOW_SPEED 75
   #define FAST_SPEED 150
-  #define LASER_THRESHOLD 5
+  #define LASER_THRESHOLD 25
   int testPin = 11;
   //////////////////////////////////////
   
@@ -40,9 +40,11 @@
   //left
   int leftLaserPin = A4 ; //Analog in for the left phototransistor
   int leftLaserValue = 0; //Analog value of the left phototransistor
+  int leftLaserBase=0;
   //right
   int rightLaserPin = A5; //Analog in for the right phototransistor
   int rightLaserValue = 0; //Analog value of the right phototransistor
+  int rightLaserBase=0;
   //////////////////////////////////////
 
   //////////////////////////////////////
@@ -97,11 +99,20 @@ void setup() {
   backBase = analogRead(backLine);
   delay(200);
   backBase = (backBase+analogRead(backLine))/2;
+  delay(200);
+   
+  for (int i=0; i<25; i++){
+    leftLaserBase+=analogRead(leftLaserPin);
+    rightLaserBase+=analogRead(rightLaserPin);
+    delay(40);
+  }
+  leftLaserBase/=25;
+  rightLaserBase/=25;
   //basically creating the edgeBase as the initialitization of the first two values
   laser_servo.attach(servo_pin); //attaching the servo
   Serial.begin(9600); //allowing serial communication 
   //Now we wait for 4 seconds
-  delay(3000);
+  delay(2000);
   setMotors(STANDARD_SPEED, 1, STANDARD_SPEED,1);
   oldTime=millis();
   //AND We are gonna go go go go go
@@ -257,18 +268,18 @@ void detectCup(){
      //acquire laser values
      leftLaserValue = analogRead(leftLaserPin);
      rightLaserValue = analogRead(rightLaserPin);
-     if((leftLaserValue > LASER_THRESHOLD) && (rightLaserValue > LASER_THRESHOLD)){
+     if((leftLaserValue-leftLaserBase > LASER_THRESHOLD) && (rightLaserValue-rightLaserBase > LASER_THRESHOLD)){
         //this case means that we are locked on
         isDetected=true;
         detectionSide=1;
      }
      //its only on the left
-     else if(leftLaserValue > LASER_THRESHOLD){
+     else if(leftLaserValue-leftLaserBase > LASER_THRESHOLD){
         isDetected=true;
         detectionSide=0;
      }
      //its only on the right
-     else if(rightLaserValue > LASER_THRESHOLD){
+     else if(rightLaserValue-rightLaserBase > LASER_THRESHOLD){
         isDetected=true;
         detectionSide=2;
      }

@@ -167,6 +167,7 @@ void nearTheEdge(){
 }
 //avoidEdge() is a function that if we are currently detecting the edge avoids the edge
 void avoidEdge(){
+  //if edge is right in front
   if (edgeSide==3){
     //TODO: ADD turnAround() function
     //for now this is gonna just back up with both motors for like 1 second then one motor
@@ -175,6 +176,34 @@ void avoidEdge(){
     delay(1000);
     //basically then have the left go backwards and the right go forwards
     setMotors(SLOW_SPEED, -1, SLOW_SPEED, 1);
+    //wait 2 seconds
+    delay(2000);
+  }
+  //if edge is to the right 
+  else if (edgeSide==2){
+    //set the right one to faster than the left one slightly
+    int leftVal= STANDARD_SPEED-25;
+    setMotors(leftVal, 1, STANDARD_SPEED, 1);
+    //wait 1 second
+    delay(1000);
+  }
+  //if edge is to the left
+  else if (edgeSide==1){
+    //vice versa of above
+    int rightVal=STANDARD_SPEED-25;
+    setMotors(STANDARD_SPEED, 1, rightVal, 1);
+    //wait 1 second
+    delay(1000);
+  }
+  //it really shouldn't get to the back but whatever i'll take care of it
+  else if (edgeSide==0){
+    //basically just go forward at slow speed for a second
+    setMotors(SLOW_SPEED, 1, SLOW_SPEED, 1);
+    //the second delay
+    delay(1000);
+  }
+  else{
+    Serial.println("Why did we call this function.... there is no edge");
   }
 }
 

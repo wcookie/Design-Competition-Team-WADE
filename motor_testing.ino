@@ -113,7 +113,11 @@ void loop() {
   //check if we are near the edge
   //Serial.println("LEFT");
   //Serial.println(analogRead(leftLaserPin));
+  Serial.println("A5");
+  Serial.println(analogRead(A5));
+  Serial.println("A4");
   Serial.println(analogRead(A4));
+  delay(10);
   //Serial.println("RIGHT");
  // Serial.println(analogRead(rightLaserPin));
   //delay(50);

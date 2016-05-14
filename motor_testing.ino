@@ -3,10 +3,10 @@
   Servo laser_servo; //initializing the servo for the laser
   //////////////////////////////////////
   //these 4 pins relate to the h bridges for the drive motors
-  int analogLeft = 3; //PWM out
-  int digitalLeft = 2; // Digital out
-  int analogRight = 5; //PWM out
-  int digitalRight = 4; //Digital out
+  int analogLeft = 5; //PWM out
+  int digitalLeft = 4; // Digital out
+  int analogRight = 9; //PWM out (recently switched due to defection with arduino 3 pin
+  int digitalRight = 2; //Digital out
   //////////////////////////////////////
   //servo stuff
   int servo_pos = 0; // the servo position for the lasers
@@ -59,14 +59,14 @@ void setup() {
 void loop() {
 
   //can take out timing stuff probably; we will be using 555 circuit
- // Serial.println(analogRead(frontRightLine));
-    Serial.println(edgeDetected);
-  /*if (analogRead(frontLeftLine)<50){
+    Serial.println(analogRead(backLine));
+   // Serial.println(edgeDetected);
+  if (analogRead(frontLeftLine)<50){
     edgeSide=1;
     edgeDetected=true;
     Serial.println("frontLEFT");
   }
- */ if (analogRead(frontRightLine)<50){
+  if (analogRead(frontRightLine)<50){
     edgeSide=2;
     edgeDetected=true;
     Serial.println("frontRIGHT");

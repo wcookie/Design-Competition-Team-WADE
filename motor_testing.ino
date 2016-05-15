@@ -10,6 +10,7 @@
   #define SLOW_SPEED 52
   #define FAST_SPEED 130
   #define LASER_THRESHOLD 25
+  #define MAX_SPEED 180
   int testPin = 0;
   //////////////////////////////////////
   
@@ -89,13 +90,13 @@ void setup() {
   pinMode(rightLaserPin, INPUT);
 
   frontLeftBase=analogRead(frontLeftLine);
-  delay(100);
+  delay(50);
   frontLeftBase=(frontLeftBase+analogRead(frontLeftLine))/2;
   frontRightBase = analogRead(frontRightLine);
-  delay(100);
+  delay(50);
   frontRightBase = (frontRightBase+analogRead(frontRightLine))/2;
   backBase = analogRead(backLine);
-  delay(100);
+  delay(50);
   backBase = (backBase+analogRead(backLine))/2;
    
 
@@ -111,6 +112,9 @@ void setup() {
 }
 
 void loop() {
+ // setMotors(MAX_SPEED-10, 1, MAX_SPEED, 1);
+  //delay(1800);
+  searchForCup();
   laser_servo.write(random(0,180));
   Serial.println(A1);
   //delay(500);
@@ -142,10 +146,10 @@ void setMotors(int leftSpeed, int leftDirection, int rightSpeed, int rightDirect
   analogWrite(analogLeft, leftSpeed);
   analogWrite(analogRight, rightSpeed);
   if(leftDirection==1){
-    digitalWrite(digitalLeft, HIGH);
+    digitalWrite(digitalLeft, LOW);
   }
   else{
-    digitalWrite(digitalLeft, LOW);
+    digitalWrite(digitalLeft, HIGH);
   }
   if (rightDirection==1){
     digitalWrite(digitalRight, HIGH);
